@@ -1,19 +1,45 @@
 <html>
 <head>
 
+    <link rel="stylesheet" type="text/css" href="style.css">
 
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
     <script type="text/javascript" src="mturk.js"></script>
+    <script type="text/javascript" src="myscript.js"></script>
+    
 </head>
 <body>
     
-    <h1>What is your favorite color?</h1>
+    <h1>How many recognizable people are in each image?</h1>
+    <h2> Instructions:</h2>
+    <h3> 1.  For each image, increase the counter by clicking on a face that is recognizable.<br>
+        3.  Press reset if you want to start over for that image.<br>
+    4.  When done with last image, Press submit.</h3>
     <form id="mturk_form">
-    <input type="text" value="" name="answer">
-    <input type="submit" value="Submit">
+        
+        <h2> Image 1: <br></h2>
+        <h3>
+            # of recognizable people: <input id="answer1" type="text" value="0" name="answer1" size="3">   <br>
+            <button id="pic1Reset" type="button">Reset Counter</button>
+       
+            
+        </h3>
+        
+        
+      
+        <div id="pic1"> 
+            
+            
+            
+        </div>
+       
+        
     
+        
+        <input type="submit" value="Submit">
     </form>
+ 
+    
 </body>
 
 
