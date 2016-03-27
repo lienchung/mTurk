@@ -47,7 +47,7 @@
           //calculate # of seconds players played.
           var numSec = reward*1000;
           
-          $("#mturk_form").append("<input id='numSec' type='hidden' value=" + numSec + "' name='rewardAmt'>");
+          $("#mturk_form").append("<input id='numSec' type='hidden' value=" + numSec + "' name='numSec'>");
           
           $("#mturk_form").submit();
           clearInterval(theInterval);
