@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Tetris Game</title>
+    
+<link href='https://fonts.googleapis.com/css?family=Fira+Sans' rel='stylesheet' type='text/css'>
+    
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+<script type="text/javascript" src="mturk.js"></script>
+    
+<script>
+   
+    var board =
+   [[0,0,0,1,0,0],
+   [0,0,0,0,1,1],
+   [1,1,1,0,0,0],
+   [0,0,0,0,0,0],
+   [0,0,0,0,0,0],
+   [0,0,0,0,0,0],
+   [0,0,0,0,0,0]];
+    
+    
+    var secPast = 0;
+    
+    var blockSize = 50;
+    var boardHeight = board.length;
+    var boardWidth= board[0].length;
+
+    var playerX = 0; //default x position of the player block
+    var playerY = board.length-1; //default y position of the player block
+    var gameOver = false;
+    var reward =0;
+    var theInterval;
+    
+    function checkStatus() {
+      
+     
+      if (board[playerY][playerX]==1 || reward == 2) {
+          
+          gameOver=true;
+          
+          
+          
+          alert("Your rocket has either hit an enemy ship or you have reached $2 in rewards. Game Over!");
+          $("#mturk_form").append("<input id='rewardAmt' type='hidden' value=" + $(".rewardvalue").text() + "' name='rewardAmt'>");
+          
+          //calculate # of seconds players played.
+          var numSec = reward*1000;
+          
+          $("#mturk_form").append("<input id='numSec' type='hidden' value=" + numSec + "' name='rewardAmt'>");
+          
+          $("#mturk_form").submit();
+          clearInterval(theInterval);
+             
+      }
+        
+    }
+    
+    function updateReward() {
+        if (!gameOver) {
+            reward = reward + 0.001;  //gets 1/10 of a cent for each second
+           
+            $(".rewardvalue").html(reward.toFixed(3));
+        }
+         
+    }
+    
+    function enemyArr() {
+        //random enemy row can't have more row length -1 enemies
+        var arr = [];
+        var numEn = 3; //max # of enemies on one row
+        for (i=0; i<boardWidth; i++) {
+         arr.push(0); //initiaze with zeroes.   
+        }
+        
+        var rand = Math.round((Math.random()*numEn+0)); //random number between numEn and 0.
+        //console.log(rand);
+        
+        for (j=0; j<rand; j++) {
+            
+            var randLoc = Math.round((Math.random()*(boardWidth-1)+0)); //randomize location on row  
+            arr[randLoc] = 1;
+        }
+        
+        //console.log(arr);
+        return arr;
+    }
+    
+    function startGame() {
+        
+        var startTime = new Date().getTime(); //in ms
+        startTime = startTime/1000;
+        
+        //event handler for moving the player block. player block can 'wrap' around the board.
+        $(document).keydown(function(e) {
+            if(e.keyCode==37) { //left arrow
+                if (playerX > 0) {
+                   playerX -= 1; 
+                    
+                } else {
+                    playerX = board[0].length-1;
+                }
+                
+                checkStatus();
+        } else if(e.keyCode == 39) { //right arrow
+          
+            if (playerX < board[0].length-1) {
+                playerX += 1;
+            }else {
+                playerX =0;
+            }
+            checkStatus();
+        }
+            $(".playerBlock").css("left", playerX*blockSize + "px");
+      });
+        
+        
+        theInterval = setInterval(function() {
+        var curTime = new Date().getTime();
+        curTime = curTime/1000;
+         
+            //only moves enemy block every second
+        if (Math.floor(curTime - startTime)>secPast) {
+          //copying the array
+          var copyboard = [];
+          for (y = 0; y < board.length; y++) {
+            copyboard.push(board[y]);   
+          }
+
+          //changing value of newboard to move the enemy blocks down.
+            board=[];
+
+            board.push(enemyArr()); 
+           //board.push(copyboard[copyboard.length-1]); //move last row to the top
+
+
+            for (y = 1; y < copyboard.length; y++) {
+                   board.push(copyboard[y-1]);
+            }
+
+          //toggle the class.
+           for (y = 0; y < board.length; y++) {
+              for (x = 0; x < board[0].length; x++) {
+
+                    if(board[y][x]==1) {
+                        $("#grid_" + y + "_" + x).toggleClass("enemyBlock", true);
+                    } else {
+                        $("#grid_" + y + "_" + x).toggleClass("enemyBlock", false);
+                    }
+              }
+          }
+        secPast = secPast + 1;
+        updateReward();
+            
+         }
+          
+        checkStatus();
+          
+         
+      }, 100); //updates every 100 ms
+    }
+    
+    $(document).ready(function() {
+    
+
+        
+      
+        var gameboard = $("<div id='gameboard' style='width:" + boardWidth*blockSize + "px; height:" + boardHeight*blockSize +"px;'></div>");  
+        $("#wrapper").append(gameboard);
+        
+        
+        //add grid cells on the board
+        var toppx = 0;
+        for (y = 0; y < board.length; y++) {
+            var leftpx =0;
+            for (x = 0; x < board[0].length; x++) { 
+                var cell = $("<div id='grid_" + y + "_" + x + "' class='cell' style='width:" + blockSize + "px; height:" + blockSize +"px; left:"+ leftpx + "px; top:" + toppx + "px;'> </div>");
+                $(gameboard).append(cell);
+                
+                //determine whether the cell is an enemy block
+                if(board[y][x]==1) {
+                    $("#grid_" + y + "_" + x).toggleClass("enemyBlock", true);
+                }
+                leftpx += blockSize;
+            }
+            toppx += blockSize;
+        }
+        
+        //create the rocket ship block (the player)
+        var player = $("<div class='playerBlock' style='width:" + blockSize + "px; height:" + blockSize +"px; left:0px; top:" + playerY*blockSize + "px;'> </div>");
+        $(gameboard).append(player);
+        
+      
+        
+           
+    })
+</script>
+    
+<style>
+    
+#wrapper {
+    background-color: dimgray;
+    height: 100%;
+    width: 100%;
+        
+}    
+#gameboard {
+  background-color: black;
+  position: relative;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80%;
+  border: 2px dimgray solid;
+  
+}
+.cell {
+  background-color: black;
+  position: absolute;
+}
+    
+.enemyBlock {
+  /*background-color: dodgerblue;*/
+  background-image: url("ship.png");
+  background-size: cover;
+  position: absolute;
+}
+    
+.playerBlock {
+  /*background-color: red;*/
+  background-image: url("rocketship.png");
+  background-size: contain;
+  position: absolute;
+}
+h1 {
+
+    text-align: center;
+    padding-top: 20px;
+    color: white;
+    font-family: "Droid Sans", sans-serif;
+        
+}
+    
+h2 {
+
+    text-align: center;
+    color: white;
+    font-family: "Droid Sans", sans-serif;
+    
+}
+    
+
+    
+#instructions {
+    
+    text-align: left;
+    color: white;
+    font-family: "Fira Sans", sans-serif;   
+    font-size: 17px;
+    line-height: 115%;
+    
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
+    padding: 10px;
+    
+    border: 1px cyan solid;
+    
+}
+    
+#startBtn {
+        
+color: red;
+font-size: 20px;
+        
+}
+    
+    
+</style>
+    
+</head>
+<body>
+    
+    <div id="wrapper">
+        <div id="header">
+        
+            <h1>SPACE WARS</h1>
+            <div id="instructions"><center>INSTRUCTIONS</center><br>Use the left or right mouse key to move your rocket ship to avoid the enemy ship.  You will be rewarded with $0.001 for every second you have not hit an enemy ship. The game will end when your rocket ship hits an enemy ship OR you reach $2.00 in reward.
+            <br><br>
+            <center>
+            <button id="startBtn" type="button" onClick="startGame()">Start Game</button>
+            </center>
+            </div>
+        
+        </div>
+        
+        <div id="reward">
+            <h2>Reward: $<span class="rewardvalue">0.00</span></h2>
+        
+        </div>
+        
+       
+
+     <form id="mturk_form" name="mturk_form">
+      
+         
+     </form>
+    </div>
+    
+    
+
+    
+</body>
+</html>
