@@ -42,12 +42,12 @@
           
           
           alert("Your rocket has either hit an enemy ship or you have reached $2 in rewards. Game Over!");
-          $("#mturk_form").append("<input id='rewardAmt' type='hidden' value=" + $(".rewardvalue").text() + "' name='rewardAmt'>");
+          $("#mturk_form").append("<input id='rewardAmt' type='hidden' value='" + $(".rewardvalue").text() + "' name='rewardAmt'>");
           
           //calculate # of seconds players played.
           var numSec = reward*1000;
           
-          $("#mturk_form").append("<input id='numSec' type='hidden' value=" + numSec + "' name='numSec'>");
+          $("#mturk_form").append("<input id='numSec' type='hidden' value='" + numSec + "' name='numSec'>");
           
           $("#mturk_form").submit();
           clearInterval(theInterval);
