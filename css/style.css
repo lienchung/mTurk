@@ -1,0 +1,48 @@
+#instruction-container {
+	margin: 0;
+}
+
+.row {
+	margin: 0;
+}
+
+.image{
+    
+    width: 400px;
+    height 400px;
+
+}
+
+.instructions {
+    
+    font-size: 20px;
+  
+}
+
+.header1  {
+    
+    font-size: 19px;
+    font-weight: 500;
+}
+
+.header2 {
+    
+    font-size: 15px;
+      font-weight: 400;
+    color: dimgray
+}
+
+input[type="text"] {
+    
+    font-size:20px;
+    color: black;
+}
+
+.header5 {
+    font-size: 16px;
+}
+
+.ex_response {
+    font-style: italic;
+    color: darkblue;
+}
